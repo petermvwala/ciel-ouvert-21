@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Programme Ciel Ouvert 21</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  /* Layout idea: one narrow column, like the poster turned into a schedule.
+     Poster's condensed display type + plum-to-ember gradient carry the identity;
+     each rendez-vous is a row with the hour set large on the left. */
+  :root {
+    color-scheme: light;
+    --paper: #f3f0ed;
+    --card: #ffffff;
+    --ink: #1d0f15;
+    --muted: #6a565b;
+    --plum: #3b0a27;
+    --maroon: #7c1d13;
+    --ember: #c8450d;
+    --red: #d2261b;
+    --line: #e2d9d5;
+    --display: "Bebas Neue", "Oswald", "Arial Narrow", Impact, sans-serif;
+    --body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --grad: linear-gradient(100deg, var(--plum), var(--maroon) 55%, var(--ember));
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 20px 56px; }
+
+  /* Header */
+  header { padding: 28px 0 8px; }
+  .org {
+    font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+    font-size: 15px; display: flex; align-items: center; gap: 10px;
+  }
+  .org::before { content: ""; width: 5px; height: 20px; background: var(--red); flex: none; }
+  .invite { margin: 22px 0 2px; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  h1 {
+    font-family: var(--display); font-weight: 400; margin: 0;
+    font-size: clamp(64px, 21vw, 124px); line-height: .86; letter-spacing: .01em;
+    text-wrap: balance;
+  }
+  h1 .l1 { display: block; color: var(--ember); }
+  h1 .l2 {
+    display: block;
+    background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .sub { font-family: var(--display); font-size: 26px; letter-spacing: .04em; color: var(--plum); margin: 10px 0 0; line-height: 1.1; }
+  .dates {
+    margin: 14px 0 0; font-weight: 800; font-style: italic; text-transform: uppercase;
+    font-size: 17px; color: var(--maroon); letter-spacing: .01em;
+  }
+  .today {
+    display: inline-block; margin-top: 12px; padding: 5px 12px; border-radius: 999px;
+    background: var(--card); border: 1px solid var(--line); font-size: 14px; font-weight: 600; color: var(--plum);
+  }
+  .theme {
+    margin: 26px 0 0; padding: 18px 20px; background: var(--grad); color: #fff; border-radius: 4px 28px 4px 28px;
+  }
+  .theme small { display: block; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; opacity: .8; margin-bottom: 6px; }
+  .theme p { margin: 0; font-weight: 800; text-transform: uppercase; font-size: 18px; line-height: 1.3; letter-spacing: .02em; text-wrap: balance; }
+  .theme cite { display: block; margin-top: 8px; font-style: normal; font-weight: 600; font-size: 14px; opacity: .9; }
+
+  /* Sections */
+  h2 {
+    font-family: var(--display); font-weight: 400; font-size: 34px; letter-spacing: .03em;
+    margin: 44px 0 14px; color: var(--plum); line-height: 1;
+  }
+  .list { display: flex; flex-direction: column; gap: 12px; }
+  .rdv {
+    background: var(--card); border: 1px solid var(--line); border-left: 5px solid var(--ember);
+    border-radius: 6px; padding: 18px 18px 18px 16px;
+    display: grid; grid-template-columns: 92px 1fr; gap: 4px 16px; align-items: start;
+  }
+  .rdv.site { border-left-color: var(--plum); }
+  .hour { font-family: var(--display); font-size: 40px; line-height: .95; color: var(--maroon); font-variant-numeric: tabular-nums; }
+  .hour span { display: block; font-family: var(--body); font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: .04em; margin-top: 4px; }
+  .rdv h3 { margin: 0; font-size: 18px; font-weight: 800; line-height: 1.25; }
+  .days { margin: 2px 0 0; font-weight: 600; color: var(--maroon); }
+  .where { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+  .where b { color: var(--ink); font-weight: 600; }
+  .actions { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 16px; border-radius: 999px; font: 600 15px var(--body);
+    background: var(--plum); color: #fff; text-decoration: none; border: 1px solid var(--plum);
+  }
+  .btn:hover { background: var(--maroon); border-color: var(--maroon); }
+  .btn:focus-visible, a:focus-visible { outline: 3px solid var(--ember); outline-offset: 2px; }
+  .btn.pending { background: transparent; color: var(--muted); border: 1px dashed #bfb0ab; cursor: default; }
+  .btn svg { width: 16px; height: 16px; flex: none; }
+
+  .where a, .day a { color: inherit; text-decoration: underline; text-decoration-color: var(--ember); text-underline-offset: 3px; }
+  .place p a { text-underline-offset: 3px; }
+
+  /* Week */
+  .week { background: var(--card); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .day { display: grid; grid-template-columns: 104px 1fr; gap: 12px; padding: 13px 16px; border-top: 1px solid var(--line); align-items: baseline; }
+  .day:first-child { border-top: 0; }
+  .day .name { font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: .05em; }
+  .day ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .day li { display: flex; gap: 10px; font-size: 15px; }
+  .day time { font-weight: 600; min-width: 62px; font-variant-numeric: tabular-nums; color: var(--maroon); }
+  .day.off { color: var(--muted); }
+  .day.off .name { font-weight: 600; }
+  .day.is-today { background: #fbf1ea; box-shadow: inset 4px 0 0 var(--ember); }
+
+  /* Footer */
+  .place { background: var(--plum); color: #fff; border-radius: 28px 4px 28px 4px; padding: 22px 20px; margin-top: 44px; }
+  .place h2 { color: #fff; margin: 0 0 8px; }
+  .place p { margin: 0 0 4px; }
+  .place a { color: #fff; }
+  .place .btn { background: #fff; color: var(--plum); border-color: #fff; margin-top: 12px; }
+  .place .btn:hover { background: var(--paper); }
+  .place hr { border: 0; border-top: 1px solid rgba(255,255,255,.22); margin: 18px 0 14px; }
+  .tel { font-weight: 800; font-size: 18px; white-space: nowrap; }
+
+  @media (max-width: 400px) {
+    .rdv { grid-template-columns: 1fr; }
+    .hour span { display: inline; margin-left: 8px; }
+    .day { grid-template-columns: 88px 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="org">CENA-NAEC Québec City</div>
+    <p class="invite">Programme</p>
+    <h1><span class="l1">Ciel ouvert</span><span class="l2">21 jours</span></h1>
+    <p class="sub">Jeûne et prières · Open Heavens</p>
+    <p class="dates">Du 16 novembre au 6 décembre 2026</p>
+    <div><span class="today" id="today" hidden></span></div>
+
+    <div class="theme">
+      <small>Sous le thème</small>
+      <p>Face aux combats, il me soutient et me favorise divinement</p>
+      <cite>Ésaïe 41:10</cite>
+    </div>
+  </header>
+
+  <main>
+    <h2>Nos rendez-vous</h2>
+    <div class="list">
+
+      <article class="rdv">
+        <div class="hour">5 h<span>à 6 h</span></div>
+        <div>
+          <h3>Prières matinales</h3>
+          <p class="days">Lundi, mardi et jeudi</p>
+          <p class="where">En ligne, dans le <b>groupe WhatsApp</b></p>
+          <div class="actions">
+            <a class="btn" id="whatsapp" href="https://chat.whatsapp.com/LtzBmdAL2dR1zTi0GxCJJe?s=cl&amp;p=i&amp;iam=2">Rejoindre le groupe WhatsApp</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="rdv">
+        <div class="hour">18 h 30</div>
+        <div>
+          <h3>Prières du soir</h3>
+          <p class="days">Du lundi au jeudi</p>
+          <p class="where">En direct sur YouTube, chaîne <b>@CENA_NAEC</b></p>
+          <div class="actions">
+            <a class="btn" href="https://www.youtube.com/@CENA_NAEC">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5 3.2v9.6L13 8z"/></svg>
+              Ouvrir la chaîne YouTube
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <article class="rdv site">
+        <div class="hour">19h00</div>
+        <div>
+          <h3>Prière en présentiel</h3>
+          <p class="days">Vendredi</p>
+          <p class="where"><a href="https://www.google.com/maps/search/?api=1&query=2073+avenue+Branly+Qu%C3%A9bec+QC"><b>2073, avenue Branly, local 212</b>, Québec</a></p>
+        </div>
+      </article>
+
+      <article class="rdv site">
+        <div class="hour">10 h 30</div>
+        <div>
+          <h3>Dimanche en présentiel</h3>
+          <p class="days">Dimanche</p>
+          <p class="where"><a href="https://www.google.com/maps/search/?api=1&query=2073+avenue+Branly+Qu%C3%A9bec+QC"><b>2073, avenue Branly, local 212</b>, Québec</a></p>
+        </div>
+      </article>
+
+    </div>
+
+    <h2>La semaine en un coup d'œil</h2>
+    <div class="week" id="week">
+      <div class="day" data-d="1"><div class="name">Lundi</div><ul>
+        <li><time>5 h</time><span>Prière matinale · WhatsApp</span></li>
+        <li><time>18 h 30</time><span>Prière du soir · YouTube</span></li></ul></div>
+      <div class="day" data-d="2"><div class="name">Mardi</div><ul>
+        <li><time>5 h</time><span>Prière matinale · WhatsApp</span></li>
+        <li><time>18 h 30</time><span>Prière du soir · YouTube</span></li></ul></div>
+      <div class="day" data-d="3"><div class="name">Mercredi</div><ul>
+        <li><time>18 h 30</time><span>Prière du soir · YouTube</span></li></ul></div>
+      <div class="day" data-d="4"><div class="name">Jeudi</div><ul>
+        <li><time>5 h</time><span>Prière matinale · WhatsApp</span></li>
+        <li><time>18 h 30</time><span>Prière du soir · YouTube</span></li></ul></div>
+      <div class="day" data-d="5"><div class="name">Vendredi</div><ul>
+        <li><time>19h00</time><span>Prière en présentiel · <a href="https://www.google.com/maps/search/?api=1&query=2073+avenue+Branly+Qu%C3%A9bec+QC">2073, avenue Branly</a></span></li></ul></div>
+      <div class="day off" data-d="6"><div class="name">Samedi</div><ul>
+        <li><span>Pas de rencontre prévue</span></li></ul></div>
+      <div class="day" data-d="0"><div class="name">Dimanche</div><ul>
+        <li><time>10 h 30</time><span>En présentiel · <a href="https://www.google.com/maps/search/?api=1&query=2073+avenue+Branly+Qu%C3%A9bec+QC">2073, avenue Branly</a></span></li></ul></div>
+    </div>
+
+    <section class="place">
+      <h2>Nous trouver</h2>
+      <p><a href="https://www.google.com/maps/search/?api=1&query=2073+avenue+Branly+Qu%C3%A9bec+QC"><b>2073, avenue Branly, local 212</b><br>Québec (Québec)</a></p>
+      <a class="btn" href="https://www.google.com/maps/search/?api=1&query=2073+avenue+Branly+Qu%C3%A9bec+QC">Voir l'itinéraire</a>
+      <hr>
+      <p>Pour plus d'informations</p>
+      <p><a class="tel" href="tel:+13439962846">+1 343 996-2846</a></p>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  try {
+    // Date du jour à Québec (heure de l'Est)
+    var parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Toronto', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()).split('-');
+    var now = Date.UTC(+parts[0], +parts[1] - 1, +parts[2]);
+    var start = Date.UTC(2026, 10, 16), end = Date.UTC(2026, 11, 6);
+    var el = document.getElementById('today');
+    var n = Math.round((now - start) / 86400000) + 1;
+    if (now < start) {
+      var left = Math.round((start - now) / 86400000);
+      el.textContent = left === 1 ? 'Début demain' : 'Début dans ' + left + ' jours';
+      el.hidden = false;
+    } else if (now <= end) {
+      el.textContent = 'Aujourd’hui : jour ' + n + ' sur 21';
+      el.hidden = false;
+      var dow = new Date(now).getUTCDay();
+      var row = document.querySelector('.day[data-d="' + dow + '"]');
+      if (row) row.classList.add('is-today');
+    }
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>
