@@ -224,7 +224,7 @@
           <p class="days">Mercredi</p>
           <p class="where">En ligne sur <b>Google Meet</b></p>
           <div class="actions">
-            <span class="btn pending" id="meet">Lien Google Meet à venir</span>
+            <a class="btn" id="meet" href="https://meet.google.com/gim-ngjz-yvw">Rejoindre sur Google Meet</a>
           </div>
         </div>
       </article>
@@ -314,7 +314,7 @@
   var MORNING = [5, 0, 60, 'Prière matinale', 'En ligne · groupe WhatsApp', 'Rejoindre le groupe WhatsApp', WA];
   var EVENING = [18, 30, 90, 'Prière du soir', 'En direct · YouTube @CENA_NAEC', 'Ouvrir la chaîne YouTube', YT];
   var FRIDAY  = [19, 0, 120, 'Prière en présentiel', ADDR, 'Voir l’itinéraire', MAPS];
-  var MEET    = [19, 0, 90, 'Prière en ligne', 'En ligne · Google Meet', '', ''];
+  var MEET    = [19, 0, 90, 'Prière en ligne', 'En ligne · Google Meet', 'Rejoindre sur Google Meet', 'https://meet.google.com/gim-ngjz-yvw'];
   var SUNDAY  = [10, 30, 150, 'Dimanche en présentiel', ADDR, 'Voir l’itinéraire', MAPS];
   var WEEK = { 0: [SUNDAY], 1: [MORNING, EVENING], 2: [MORNING, EVENING], 3: [MEET],
                4: [MORNING, EVENING], 5: [FRIDAY], 6: [] };
