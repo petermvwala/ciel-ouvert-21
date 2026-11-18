@@ -38,6 +38,29 @@
   }
   .wrap { max-width: 640px; margin: 0 auto; padding: 0 20px 56px; }
 
+  /* Next up */
+  .next {
+    margin: 18px 0 4px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 6px; overflow: hidden;
+  }
+  .next-bar { height: 6px; background: var(--grad); }
+  .next-body { padding: 16px 18px 18px; }
+  .next-label {
+    display: inline-flex; align-items: center; gap: 8px; margin: 0;
+    font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--ember);
+  }
+  .next.live .next-label { color: var(--red); }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; flex: none; }
+  .next.live .dot { animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .25; } }
+  @media (prefers-reduced-motion: reduce) { .next.live .dot { animation: none; } }
+  .next h2 { margin: 8px 0 2px; font-size: 38px; color: var(--plum); }
+  .next-when { margin: 0; font-weight: 800; font-size: 18px; color: var(--maroon); }
+  .next-where { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
+  .next-count { margin: 6px 0 0; font-size: 14px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .next .actions { margin-top: 14px; }
+  .next .btn { padding: 12px 18px; font-size: 16px; }
+
   /* Header */
   header { padding: 28px 0 8px; }
   .org {
@@ -138,6 +161,18 @@
 
   <header>
     <div class="org">CENA-NAEC Québec City</div>
+
+    <section class="next" id="next" aria-live="polite" hidden>
+      <div class="next-bar"></div>
+      <div class="next-body">
+        <p class="next-label"><span class="dot"></span><span id="next-label">Prochain rendez-vous</span></p>
+        <h2 id="next-title"></h2>
+        <p class="next-when" id="next-when"></p>
+        <p class="next-where" id="next-where"></p>
+        <p class="next-count" id="next-count"></p>
+        <div class="actions"><a class="btn" id="next-btn" href="#"></a></div>
+      </div>
+    </section>
     <p class="invite">Programme</p>
     <h1><span class="l1">Ciel ouvert</span><span class="l2">21 jours</span></h1>
     <p class="sub">Jeûne et prières · Open Heavens</p>
@@ -255,6 +290,84 @@
       if (row) row.classList.add('is-today');
     }
   } catch (e) {}
+})();
+</script>
+<script>
+(function () {
+  var WA = 'https://chat.whatsapp.com/LtzBmdAL2dR1zTi0GxCJJe?s=cl&p=i&iam=2';
+  var YT = 'https://www.youtube.com/@CENA_NAEC';
+  var MAPS = 'https://www.google.com/maps/search/?api=1&query=2073+avenue+Branly+Qu%C3%A9bec+QC';
+  var ADDR = '2073, avenue Branly, local 212, Québec';
+  // [heure, minute, durée en minutes, titre, lieu, bouton, lien]
+  var MORNING = [5, 0, 60, 'Prière matinale', 'En ligne · groupe WhatsApp', 'Rejoindre le groupe WhatsApp', WA];
+  var EVENING = [18, 30, 90, 'Prière du soir', 'En direct · YouTube @CENA_NAEC', 'Ouvrir la chaîne YouTube', YT];
+  var FRIDAY  = [19, 0, 120, 'Prière en présentiel', ADDR, 'Voir l’itinéraire', MAPS];
+  var SUNDAY  = [10, 30, 150, 'Dimanche en présentiel', ADDR, 'Voir l’itinéraire', MAPS];
+  var WEEK = { 0: [SUNDAY], 1: [MORNING, EVENING], 2: [MORNING, EVENING], 3: [EVENING],
+               4: [MORNING, EVENING], 5: [FRIDAY], 6: [] };
+  var DAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+  var MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  var DAY = 86400000, START = Date.UTC(2026, 10, 16), END = Date.UTC(2026, 11, 6);
+
+  // Toutes les heures sont celles de Québec : on travaille en « heure murale » de Québec.
+  function nowQC() {
+    var f = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Toronto', hourCycle: 'h23',
+      year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    var o = {};
+    f.formatToParts(new Date()).forEach(function (p) { o[p.type] = +p.value; });
+    return Date.UTC(o.year, o.month - 1, o.day, o.hour % 24, o.minute, o.second);
+  }
+  function events() {
+    var list = [];
+    for (var d = START; d <= END; d += DAY) {
+      (WEEK[new Date(d).getUTCDay()] || []).forEach(function (e) {
+        var s = d + (e[0] * 60 + e[1]) * 60000;
+        list.push({ start: s, end: s + e[2] * 60000, h: e[0], m: e[1], title: e[3], where: e[4], btn: e[5], href: e[6] });
+      });
+    }
+    return list;
+  }
+  function hhmm(e) { return e.h + 'h' + (e.m < 10 ? '0' : '') + e.m; }
+  function whenText(e, now) {
+    var day0 = Math.floor(now / DAY) * DAY, eday = Math.floor(e.start / DAY) * DAY;
+    var diff = Math.round((eday - day0) / DAY), dt = new Date(e.start);
+    var label = diff === 0 ? 'Aujourd’hui' : diff === 1 ? 'Demain' :
+      DAYS[dt.getUTCDay()].charAt(0).toUpperCase() + DAYS[dt.getUTCDay()].slice(1) + ' ' + dt.getUTCDate() + ' ' + MONTHS[dt.getUTCMonth()];
+    if (diff === 1) label += ' (' + DAYS[dt.getUTCDay()] + ')';
+    return label + ' à ' + hhmm(e);
+  }
+  function countdown(ms) {
+    var min = Math.ceil(ms / 60000);
+    if (min < 60) return 'Dans ' + min + ' min';
+    var h = Math.floor(min / 60), m = min % 60;
+    if (h < 24) return 'Dans ' + h + ' h' + (m ? ' ' + m + ' min' : '');
+    var d = Math.floor(h / 24), rh = h % 24;
+    return 'Dans ' + d + ' jour' + (d > 1 ? 's' : '') + (rh ? ' et ' + rh + ' h' : '');
+  }
+  var ALL = events();
+  function render() {
+    var box = document.getElementById('next'), now = nowQC(), e = null, live = false;
+    for (var i = 0; i < ALL.length; i++) {
+      if (now < ALL[i].end) { e = ALL[i]; live = now >= ALL[i].start; break; }
+    }
+    if (!e) {
+      document.getElementById('next-label').textContent = 'Ciel Ouvert 21 est terminé';
+      document.getElementById('next-title').textContent = 'Merci d’avoir prié avec nous';
+      ['next-when', 'next-where', 'next-count'].forEach(function (id) { document.getElementById(id).textContent = ''; });
+      document.getElementById('next-btn').parentNode.hidden = true;
+      box.classList.remove('live'); box.hidden = false; return;
+    }
+    box.classList.toggle('live', live);
+    document.getElementById('next-label').textContent = live ? 'En cours maintenant' : 'Prochain rendez-vous';
+    document.getElementById('next-title').textContent = e.title;
+    document.getElementById('next-when').textContent = live ? 'Commencé à ' + hhmm(e) : whenText(e, now);
+    document.getElementById('next-where').textContent = e.where;
+    document.getElementById('next-count').textContent = live ? 'Rejoignez-nous maintenant' : countdown(e.start - now);
+    var b = document.getElementById('next-btn');
+    b.textContent = e.btn; b.href = e.href; b.parentNode.hidden = false;
+    box.hidden = false;
+  }
+  try { render(); setInterval(render, 30000); } catch (err) {}
 })();
 </script>
 </body>
