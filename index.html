@@ -206,13 +206,25 @@
         <div class="hour">18 h 30</div>
         <div>
           <h3>Prières du soir</h3>
-          <p class="days">Du lundi au jeudi</p>
+          <p class="days">Lundi, mardi et jeudi</p>
           <p class="where">En direct sur YouTube, chaîne <b>@CENA_NAEC</b></p>
           <div class="actions">
             <a class="btn" href="https://www.youtube.com/@CENA_NAEC">
               <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5 3.2v9.6L13 8z"/></svg>
               Ouvrir la chaîne YouTube
             </a>
+          </div>
+        </div>
+      </article>
+
+      <article class="rdv">
+        <div class="hour">19h00</div>
+        <div>
+          <h3>Prière en ligne</h3>
+          <p class="days">Mercredi</p>
+          <p class="where">En ligne sur <b>Google Meet</b></p>
+          <div class="actions">
+            <span class="btn pending" id="meet">Lien Google Meet à venir</span>
           </div>
         </div>
       </article>
@@ -246,7 +258,7 @@
         <li><time>5 h</time><span>Prière matinale · WhatsApp</span></li>
         <li><time>18 h 30</time><span>Prière du soir · YouTube</span></li></ul></div>
       <div class="day" data-d="3"><div class="name">Mercredi</div><ul>
-        <li><time>18 h 30</time><span>Prière du soir · YouTube</span></li></ul></div>
+        <li><time>19h00</time><span>Prière en ligne · Google Meet</span></li></ul></div>
       <div class="day" data-d="4"><div class="name">Jeudi</div><ul>
         <li><time>5 h</time><span>Prière matinale · WhatsApp</span></li>
         <li><time>18 h 30</time><span>Prière du soir · YouTube</span></li></ul></div>
@@ -302,8 +314,9 @@
   var MORNING = [5, 0, 60, 'Prière matinale', 'En ligne · groupe WhatsApp', 'Rejoindre le groupe WhatsApp', WA];
   var EVENING = [18, 30, 90, 'Prière du soir', 'En direct · YouTube @CENA_NAEC', 'Ouvrir la chaîne YouTube', YT];
   var FRIDAY  = [19, 0, 120, 'Prière en présentiel', ADDR, 'Voir l’itinéraire', MAPS];
+  var MEET    = [19, 0, 90, 'Prière en ligne', 'En ligne · Google Meet', '', ''];
   var SUNDAY  = [10, 30, 150, 'Dimanche en présentiel', ADDR, 'Voir l’itinéraire', MAPS];
-  var WEEK = { 0: [SUNDAY], 1: [MORNING, EVENING], 2: [MORNING, EVENING], 3: [EVENING],
+  var WEEK = { 0: [SUNDAY], 1: [MORNING, EVENING], 2: [MORNING, EVENING], 3: [MEET],
                4: [MORNING, EVENING], 5: [FRIDAY], 6: [] };
   var DAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
   var MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
@@ -364,7 +377,7 @@
     document.getElementById('next-where').textContent = e.where;
     document.getElementById('next-count').textContent = live ? 'Rejoignez-nous maintenant' : countdown(e.start - now);
     var b = document.getElementById('next-btn');
-    b.textContent = e.btn; b.href = e.href; b.parentNode.hidden = false;
+    b.textContent = e.btn; b.href = e.href; b.parentNode.hidden = !e.href;
     box.hidden = false;
   }
   try { render(); setInterval(render, 30000); } catch (err) {}
